@@ -186,6 +186,11 @@ class lemonadeImage:
                         c += 1
 
     def greyscaleAverage(self):
+        """
+        converts instance into greyscale by taking the average of RGB value
+        :arguments: none
+        :return: none
+        """
         for i in range(self.__width):
             for j in range(self.__height):
                 avg = (self.__imgTab[i][j][0] + self.__imgTab[i][j][1] + self.__imgTab[i][j][2]) / 3
@@ -227,7 +232,7 @@ class lemonadeImage:
         """
         runs Harris corner detection algorithm on instance
         :arguments: (Lambda) - lambda value used in algorithm, default 0.04
-        :return: result of Harris corner detection
+        :return: result of Harris corner detection as an instance, white points are possible candidates for corner
         """
         res = lemonadeImage()
         res.setSize(self.__width - 4,self.__height - 4)
@@ -294,7 +299,12 @@ class lemonadeImage:
 
         return res
 
-    def cornerDetectFAST(self, threshold):
+    def cornerDetectFAST(self, threshold = 20):
+        """
+        runs FAST corner detection algorithm on instance
+        :arguments: threshold - threshold value for FAST algorithm
+        :return: result of FAST corner detection as list of pairs, containing coordinates of corners
+        """
         res = []
         check1 = [(0,-3),(3,0),(3,3),(-3,0)]
         check2 = [(0,-3),(1,-3),(2,-2),(3,-1),(3,0),(3,1),(2,2),(1,3),(0,3),(-1,3),(-2,2),(-3,1),(-3,-1),(-3,0),(-2,-2),(-1,-3)]

@@ -27,6 +27,7 @@ class lemonadeImage:
         """
         self.__width = width
         self.__height = height
+        self.__imgTab = []
 
         for i in range(width):
             self.__imgTab.append([(0,0,0)] * height)
@@ -131,6 +132,8 @@ class lemonadeImage:
                         fp.read(1)
                         c += 1
 
+            fp.close()
+
     def saveImage(self, targ):
         """
         saves instance into an image file
@@ -184,6 +187,8 @@ class lemonadeImage:
                     while c % 4 != 0:
                         fp.write(b'\x00')
                         c += 1
+
+            fp.close()
 
     def greyscaleAverage(self):
         """

@@ -1,5 +1,8 @@
 import lemonadeImage
+import feedforwardNeuralNetwork
+import time
 
+'''
 x = lemonadeImage.lemonadeImage()
 x.loadImage('mountain.bmp')
 
@@ -19,3 +22,18 @@ xN.saveImage('bmp4.bmp')
 xN = x.edgeDetectSobel()
 xN.setBpp(24)
 xN.saveImage('bmp5.bmp')
+'''
+
+x = feedforwardNeuralNetwork.feedforwardNeuralNetwork(3,[5,3,2],'NN1')
+c = 0
+
+while True:
+    print 'New epoch %d' % (c)
+
+    c += 1
+
+    x.learn([1,1,0,0,1],[1,0],0.1)
+    x.learn([0,1,1,1,0],[0,1],0.1)
+
+    print x.feed([1,1,0,0,1])
+    print x.feed([0,1,1,1,0])

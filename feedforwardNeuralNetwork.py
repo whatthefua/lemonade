@@ -8,8 +8,9 @@
 #             __label - label of instance, will be used to interact with exe, must be distinct
 ############################################################
 
-import random
 import os
+import random
+import shutil
 import subprocess
 
 class feedforwardNeuralNetwork:
@@ -20,6 +21,7 @@ class feedforwardNeuralNetwork:
                     nodesN - list containing number of nodes in each layer, starting with 0
                     label - label of instance, must be distinct
                     weight - list containing weights of instance in the format defined in class header
+                           - file containing weights and bias weights of instance
                     weightBias - list containing bias weights of instance in the format defined in class header
 
                     if weight and weightBias are not given, instance will be initialised with random weights in range [-1,1]
@@ -32,6 +34,27 @@ class feedforwardNeuralNetwork:
         if(weight != []):
             if type(weight) is str:
                 fp = open(weight,'r')
+
+                str = fp.read()
+                res = str.split()
+                c = 0
+
+                self.__layer = int(res[c])
+                c += 1
+
+                for i in range(self.__layer):
+                    self.__nodesN[i] = int(res[c])
+                    c += 1
+
+                for i in range(self.__layer - 1):
+                    for j in range(self.__nodesN[i]):
+                        for k in range(self.__nodesN[i + 1]):
+                            self.__weight[i][j][k] = float(res[c])
+                            c += 1
+
+                    for j in range(self.__nodesN[i + 1]):
+                        self.__weightBias[i][j] = float(res[c])
+                        c += 1
 
                 fp.close()
             elif type(weight) is list:
@@ -102,9 +125,22 @@ class feedforwardNeuralNetwork:
         """
         performs backpropagation on instance
         :arguments: inp - list containing input vector
-                    inp - list containing desired output vector
+                        - string containing file name of training data
+                    outp - list containing desired output vector
                     alpha - alpha value used in learning
         :return: none
+
+        training file
+        line 1: number of training sets (n)
+        line 2: input vector of first training data
+        line 3: desired output vector of first training data
+        line 4: input vector of second training data
+        line 5: desired output vector of second training data
+        .
+        .
+        .
+        line 2n: input vector of last training data
+        line 2n + 1: desired output vector of last training data
         """
         if type(inp) is list:
             fp = open(self.__label + 'Learn.txt','w')
@@ -128,8 +164,8 @@ class feedforwardNeuralNetwork:
             fp = open(self.__label + 'Info.txt','r')
             str = fp.read()
 
-            res = str.split();
-            c = 0;
+            res = str.split()
+            c = 0
 
             self.__layer = int(res[c])
             c += 1
@@ -149,6 +185,66 @@ class feedforwardNeuralNetwork:
                     c += 1
 
             fp.close()
+        elif type(inp) is str:
+            shutil.copy2(inp, self.__label + 'Learn.txt')
+
+            subprocess.call(['feedforwardNeuralNetworkLearnList.exe',self.__label])
+
+            os.remove(self.__label + 'Learn.txt')
+
+            fp = open(self.__label + 'Info.txt','r')
+            str = fp.read()
+
+            res = str.split()
+            c = 0
+
+            self.__layer = int(res[c])
+            c += 1
+
+            for i in range(self.__layer):
+                self.__nodesN[i] = int(res[c])
+                c += 1
+
+            for i in range(self.__layer - 1):
+                for j in range(self.__nodesN[i]):
+                    for k in range(self.__nodesN[i + 1]):
+                        self.__weight[i][j][k] = float(res[c])
+                        c += 1
+
+                for j in range(self.__nodesN[i + 1]):
+                    self.__weightBias[i][j] = float(res[c])
+                    c += 1
+
+            fp.close()
+
+    def exportWeight(self, targ):
+        """
+        writes the weights of instance to file
+        :arguments: targ - file name
+        :return: none
+        """
+        fp = open(targ,'w')
+
+        fp.write('%d\n' % (self.__layer))
+
+        for i in range(self.__layer):
+            fp.write('%d ' % (self.__nodesN[i]))
+
+        fp.write('\n')
+
+        for i in range(self.__layer - 1):
+            for j in range(self.__nodesN[i]):
+                for k in range(self.__nodesN[i + 1]):
+                    fp.write('%lf ' % (self.__weight[i][j][k]))
+
+            fp.write('\n')
+
+            for j in range(self.__nodesN[i + 1]):
+                fp.write('%lf ' % (self.__weightBias[i][j]))
+
+            fp.write('\n')
+
+        fp.close()
 
     def __del__(self):
         """

@@ -129,65 +129,68 @@ int main(int argc, char *argv[])
     {
         fp = fopen(inp,"r");
 
-        fscanf(fp,"%lf%lf",&alpha,&momentum);
-
-        for(i = 0; i < nodesN[0]; i++)
+        for(fscanf(fp,"%d",&n); n > 0; n--)
         {
-            fscanf(fp,"%lf",&nodes[0][i]);
-        }
+            fscanf(fp,"%lf%lf",&alpha,&momentum);
 
-        for(i = 0; i < nodesN[layer - 1]; i++)
-        {
-            fscanf(fp,"%lf",&D[i]);
-        }
-
-        for(i = 1; i < layer; i++)
-        {
-            for(k = 0; k < nodesN[i]; k++)
+            for(i = 0; i < nodesN[0]; i++)
             {
-                tmp = Wb[i][k];
-
-                for(j = 0; j < nodesN[i - 1]; j++)
-                {
-                    tmp += nodes[i - 1][j] * W[i][j][k];
-                }
-
-                nodes[i][k] = sigmoid(tmp);
+                fscanf(fp,"%lf",&nodes[0][i]);
             }
-        }
 
-        for(i = 0; i < nodesN[layer - 1]; i++)
-        {
-            deriv[layer - 1][i] = (D[i] - nodes[layer - 1][i]) * ((db)1 - nodes[layer - 1][i]) * nodes[layer - 1][i];
-        }
-
-        for(i = layer - 2; i > 0; i--)
-        {
-            for(j = 0; j < nodesN[i]; j++)
+            for(i = 0; i < nodesN[layer - 1]; i++)
             {
-                deriv[i][j] = (db)0;
-
-                for(k = 0; k < nodesN[i + 1]; k++)
-                {
-                    deriv[i][j] += deriv[i + 1][k] * W[i + 1][j][k];
-                }
-
-                deriv[i][j] *= ((db)1 - nodes[i][j]) * nodes[i][j];
+                fscanf(fp,"%lf",&D[i]);
             }
-        }
 
-        for(i = layer - 1; i > 0; i--)
-        {
-            for(k = 0; k < nodesN[i]; k++)
+            for(i = 1; i < layer; i++)
             {
-                for(j = 0; j < nodesN[i - 1]; j++)
+                for(k = 0; k < nodesN[i]; k++)
                 {
-                    Wupdate[i][j][k] = alpha * deriv[i][k] * nodes[i - 1][j] + momentum * Wupdate[i][j][k];
-                    W[i][j][k] += Wupdate[i][j][k];
-                }
+                    tmp = Wb[i][k];
 
-                Wbupdate[i][k] = alpha * deriv[i][k] + momentum * Wbupdate[i][k];
-                Wb[i][k] += Wbupdate[i][k];
+                    for(j = 0; j < nodesN[i - 1]; j++)
+                    {
+                        tmp += nodes[i - 1][j] * W[i][j][k];
+                    }
+
+                    nodes[i][k] = sigmoid(tmp);
+                }
+            }
+
+            for(i = 0; i < nodesN[layer - 1]; i++)
+            {
+                deriv[layer - 1][i] = (D[i] - nodes[layer - 1][i]) * ((db)1 - nodes[layer - 1][i]) * nodes[layer - 1][i];
+            }
+
+            for(i = layer - 2; i > 0; i--)
+            {
+                for(j = 0; j < nodesN[i]; j++)
+                {
+                    deriv[i][j] = (db)0;
+
+                    for(k = 0; k < nodesN[i + 1]; k++)
+                    {
+                        deriv[i][j] += deriv[i + 1][k] * W[i + 1][j][k];
+                    }
+
+                    deriv[i][j] *= ((db)1 - nodes[i][j]) * nodes[i][j];
+                }
+            }
+
+            for(i = layer - 1; i > 0; i--)
+            {
+                for(k = 0; k < nodesN[i]; k++)
+                {
+                    for(j = 0; j < nodesN[i - 1]; j++)
+                    {
+                        Wupdate[i][j][k] = alpha * deriv[i][k] * nodes[i - 1][j] + momentum * Wupdate[i][j][k];
+                        W[i][j][k] += Wupdate[i][j][k];
+                    }
+
+                    Wbupdate[i][k] = alpha * deriv[i][k] + momentum * Wbupdate[i][k];
+                    Wb[i][k] += Wbupdate[i][k];
+                }
             }
         }
 

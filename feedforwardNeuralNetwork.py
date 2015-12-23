@@ -18,7 +18,7 @@ class feedforwardNeuralNetwork:
         """
         initialises an instance of feedforwardNeuralNetwork
         :arguments: layer - number of layers
-                    nodesN - list containing number of nodes in each layer, starting with 0
+                    nodesN - list containing number of nodes in each layer, starting with layer 0
                     label - label of instance, must be distinct
                     weight - list containing weights of instance in the format defined in class header
                            - file containing weights and bias weights of instance
@@ -32,12 +32,15 @@ class feedforwardNeuralNetwork:
         self.__label = label
 
         if(weight != []):
-            if type(weight) is str:
+            if isinstance(weight,basestring):
                 fp = open(weight,'r')
 
                 str = fp.read()
                 res = str.split()
                 c = 0
+
+                self.__weight = [[[0 for k in range(self.__nodesN[i + 1])] for j in range(self.__nodesN[i])] for i in range(self.__layer - 1)]
+                self.__weightBias = [[0 for k in range(self.__nodesN[i + 1])] for i in range(self.__layer - 1)]
 
                 self.__layer = int(res[c])
                 c += 1
@@ -87,11 +90,36 @@ class feedforwardNeuralNetwork:
 
         fp.close()
 
-    def feed(self, inp):
+    def feed(self, inp, out = 'feedOut.txt'):
         """
         feeds an input to instance
         :arguments: inp - list containing input vector
+                        - string containing file name of input data
+                    out - string containing file name of output data
+
+                    if out is not given, output will be written to feedOut.txt
+
         :return: list containing output vector
+                 nothing in case inp is a file
+
+        input file
+        line 1: number of input sets (n)
+        line 2: first input vector
+        line 3: second input vector
+        .
+        .
+        .
+        line n + 1: n-th input vector
+
+        output file
+        input file
+        line 1: number of output sets (n)
+        line 2: first output vector
+        line 3: second output vector
+        .
+        .
+        .
+        line n + 1: n-th output vector
         """
         if type(inp) is list:
             fp = open(self.__label + 'Feed.txt','w')
@@ -101,7 +129,7 @@ class feedforwardNeuralNetwork:
 
             fp.close()
 
-            subprocess.call(['feedforwardNeuralNetworkFeed.exe',self.__label])
+            subprocess.call(['feedforwardNeuralNetworkFeed.exe',self.__label + 'Info.txt',self.__label + 'Feed.txt',self.__label + 'FeedOut.txt'])
 
             os.remove(self.__label + 'Feed.txt')
 
@@ -120,8 +148,10 @@ class feedforwardNeuralNetwork:
             os.remove(self.__label + 'FeedOut.txt')
 
             return res
+        elif isinstance(inp, basestring):
+            subprocess.call(['feedforwardNeuralNetworkFeedList.exe',self.__label + 'Info.txt',inp,out])
 
-    def learn(self, inp, outp, alpha = 0.01):
+    def learn(self, inp, outp, loops, alpha = 0.01):
         """
         performs backpropagation on instance
         :arguments: inp - list containing input vector
@@ -132,15 +162,18 @@ class feedforwardNeuralNetwork:
 
         training file
         line 1: number of training sets (n)
-        line 2: input vector of first training data
-        line 3: desired output vector of first training data
-        line 4: input vector of second training data
-        line 5: desired output vector of second training data
+        line 2: alpha value for first training data
+        line 3: input vector of first training data
+        line 4: desired output vector of first training data
+        line 5: alpha value for second training data
+        line 6: input vector of second training data
+        line 7: desired output vector of second training data
         .
         .
         .
-        line 2n: input vector of last training data
-        line 2n + 1: desired output vector of last training data
+        line 3n - 1: alpha value for last training data
+        line 3n: input vector of last training data
+        line 3n + 1: desired output vector of last training data
         """
         if type(inp) is list:
             fp = open(self.__label + 'Learn.txt','w')
@@ -157,7 +190,7 @@ class feedforwardNeuralNetwork:
 
             fp.close()
 
-            subprocess.call(['feedforwardNeuralNetworkLearn.exe',self.__label])
+            subprocess.call(['feedforwardNeuralNetworkLearn.exe',self.__label + 'Info.txt',self.__label + 'Learn.txt', '%d' % loops])
 
             os.remove(self.__label + 'Learn.txt')
 
@@ -185,12 +218,8 @@ class feedforwardNeuralNetwork:
                     c += 1
 
             fp.close()
-        elif type(inp) is str:
-            shutil.copy2(inp, self.__label + 'Learn.txt')
-
-            subprocess.call(['feedforwardNeuralNetworkLearnList.exe',self.__label])
-
-            os.remove(self.__label + 'Learn.txt')
+        elif isinstance(inp,basestring):
+            subprocess.call(['feedforwardNeuralNetworkLearnList.exe',self.__label + 'Info.txt', inp, '%d' % loops])
 
             fp = open(self.__label + 'Info.txt','r')
             str = fp.read()

@@ -57,17 +57,17 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    FILE *fp;
-    int layer,i,j,k;
+    FILE *fp1,*fp2;
+    int layer,i,j,k,n;
     db tmp;
 
     strcpy(info,argv[1]);
     strcpy(inp,argv[2]);
     strcpy(out,argv[3]);
 
-    fp = fopen(info,"r");
+    fp1 = fopen(info,"r");
 
-    fscanf(fp,"%d",&layer);
+    fscanf(fp1,"%d",&layer);
 
     nodesN.resize(layer);
     W.resize(layer);
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 
     for(i = 0; i < layer; i++)
     {
-        fscanf(fp,"%d",&nodesN[i]);
+        fscanf(fp1,"%d",&nodesN[i]);
 
         nodes[i].resize(nodesN[i]);
     }
@@ -98,48 +98,55 @@ int main(int argc, char *argv[])
         {
             for(k = 0; k < nodesN[i]; k++)
             {
-                fscanf(fp,"%lf",&W[i][j][k]);
+                fscanf(fp1,"%lf",&W[i][j][k]);
             }
         }
 
         for(j = 0; j < nodesN[i]; j++)
         {
-            fscanf(fp,"%lf",&Wb[i][j]);
+            fscanf(fp1,"%lf",&Wb[i][j]);
         }
     }
 
-    fclose(fp);
+    fclose(fp1);
 
-    fp = fopen(inp,"r");
 
-    for(i = 0; i < nodesN[0]; i++)
+    fp1 = fopen(inp,"r");
+    fp2 = fopen(out,"w");
+
+    fscanf(fp1,"%d",&n);
+    fprintf(fp2,"%d\n",n);
+
+    for(; n > 0; n--)
     {
-        fscanf(fp,"%lf",&nodes[0][i]);
-    }
-
-    fclose(fp);
-
-    for(i = 1; i < layer; i++)
-    {
-        for(k = 0; k < nodesN[i]; k++)
+        for(i = 0; i < nodesN[0]; i++)
         {
-            tmp = Wb[i][k];
-
-            for(j = 0; j < nodesN[i - 1]; j++)
-            {
-                tmp += nodes[i - 1][j] * W[i][j][k];
-            }
-
-            nodes[i][k] = sigmoid(tmp);
+            fscanf(fp1,"%lf",&nodes[0][i]);
         }
+
+        for(i = 1; i < layer; i++)
+        {
+            for(k = 0; k < nodesN[i]; k++)
+            {
+                tmp = Wb[i][k];
+
+                for(j = 0; j < nodesN[i - 1]; j++)
+                {
+                    tmp += nodes[i - 1][j] * W[i][j][k];
+                }
+
+                nodes[i][k] = sigmoid(tmp);
+            }
+        }
+
+        for(i = 0; i < nodesN.back(); i++)
+        {
+            fprintf(fp2,"%lf ",nodes.back()[i]);
+        }
+
+        fprintf(fp2,"\n");
     }
 
-    fp = fopen(out,"w");
-
-    for(i = 0; i < nodesN.back(); i++)
-    {
-        fprintf(fp,"%lf ",nodes.back()[i]);
-    }
-
-    fclose(fp);
+    fclose(fp1);
+    fclose(fp2);
 }
